@@ -4,7 +4,7 @@ import lesscpy
 from six import StringIO
 import lib
 
-called_path = os.path.abspath(os.path.dirname(__file__)).replace("\\", "/")
+called_path = os.getcwd()
 
 pags_path = called_path +'/src/pags'
 css_path = called_path +'/src/css'
@@ -17,12 +17,16 @@ parsed_contents = {}
 
 if not os.path.isdir(called_path + '/src'):
 	print("No project found, creating...")
+	print(called_path + '/src')
+	print(pags_path)
+	print(css_path)
+	print(out_path)
 	os.mkdir(called_path + '/src')
 	os.mkdir(pags_path)
 	os.mkdir(css_path)
 	os.mkdir(out_path)
 	print("Project created")
-	exit()
+	sys.exit(0)
 
 if not os.path.isdir(pags_path):
 	os.mkdir(pags_path)

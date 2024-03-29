@@ -1,3 +1,4 @@
 css/
 src/
 venv/
+__pycache__
