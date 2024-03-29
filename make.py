@@ -1,76 +1,112 @@
-import os, shutil
-import sass
+import os, sys, shutil
+import re
+import lesscpy
+from six import StringIO
+import lib
 
-pags_path = 'src/pags'
-css_path = 'src/css'
-out_path = 'out'
+called_path = os.path.abspath(os.path.dirname(__file__)).replace("\\", "/")
 
-ignore = set()
-ignore.add("guestbook.php")
-ignore.add("head.html")
-ignore.add("foot.html")
+pags_path = called_path +'/src/pags'
+css_path = called_path +'/src/css'
+out_path = called_path +'/out'
+
+supported_extensions = set()
+supported_extensions.add("html")
+
+parsed_contents = {}
+
+if not os.path.isdir(called_path + '/src'):
+	print("No project found, creating...")
+	os.mkdir(called_path + '/src')
+	os.mkdir(pags_path)
+	os.mkdir(css_path)
+	os.mkdir(out_path)
+	print("Project created")
+	exit()
+
+if not os.path.isdir(pags_path):
+	os.mkdir(pags_path)
+
+if not os.path.isdir(css_path):
+	os.mkdir(css_path)
+
+if not os.path.isdir(out_path):
+	os.mkdir(out_path)
 
 
-# manage out dir
-try:
-	os.mkdir( out_path )
+# create pages
 
-except FileExistsError:
-	print( 'out directory already exists' )
+print("Generating Pages")
+def makePage( base_dir, page_path ):
+	full_path = lib.getAbsPath( base_dir + '/' + page_path )
+
+	if full_path in parsed_contents.keys():
+		return parsed_contents[full_path]
+	
+	file_template = open( full_path, 'r', encoding="utf8" )
+	file_content = file_template.read()
+	file_template.close()
+
+	for import_path in re.findall( r"<!-- *import (.*?) *-->", file_content ):
+		import_full_path = lib.getAbsPath( base_dir + '/' + import_path )
+		file_content = re.sub(r"<!-- *import " + re.escape(import_path) + r" *-->", makePage( base_dir, import_path ), file_content )
+	
+	parsed_contents[ base_dir + '/' + page_path ] = file_content
+
+	return file_content
 
 
 def addPages( pags_path, out_path ):
-	# get head and foot
-	print(pags_path)
-	head = open( pags_path + '/head.html', 'r', encoding="utf8" )
-	foot = open( pags_path + '/foot.html', 'r', encoding="utf8" )
-
-	head_str = head.read()
-	foot_str = foot.read()
-
-	head.close()
-	foot.close()
-
 	for filename in os.listdir( pags_path ):
-		if( filename in ignore ):
-			continue
-		
-		if os.path.isdir(pags_path + '/' + filename):
-			print("dir", filename)
-			new_out_path = out_path + '/' + filename
-			try:
-				os.mkdir( new_out_path )
+		splitted_filename = filename.split('.')
+		basename = splitted_filename[0]
+		file_extension = splitted_filename[-1]
 
-			except FileExistsError:
-				print( new_out_path + ' directory already exists' )
+		if basename[0] == '_':
+			continue
+
+		elif( file_extension in supported_extensions ):
+			print( pags_path + "/" + filename )
+			file_content = makePage( pags_path, filename )
+			file_out = open( out_path + '/' + filename, 'w', encoding="utf8" )
+			file_out.write( file_content )
+			file_out.close()
+
+		elif os.path.isdir(pags_path + '/' + filename):
+			new_out_path = out_path + '/' + filename
+			if not os.path.isdir(new_out_path):
+				os.mkdir(new_out_path)
 			
 			addPages( pags_path + '/' + filename, new_out_path )
 			
-			continue
 
-		print(filename)
-		file_template = open( pags_path + '/' + filename, 'r', encoding="utf8" )
-		file_content = head_str + '\n' + file_template.read() + '\n' + foot_str
-		file_template.close()
-
-		file_out = open( out_path + '/' + filename, 'w', encoding="utf8" )
-		file_out.write( file_content )
-		file_out.close()
-
-# add pages
 addPages( pags_path, out_path )
 
+
+
 # css
+def remove_borders(match_obj):
+	return match_obj.group(2)
+
+print("")
+print("Generating CSS")
 out_css_path = out_path + '/' + 'css'
 for filename in os.listdir( css_path ):
-	print(filename)
+	print(out_css_path + "/" + filename)
 
-	sass_file = open( css_path + '/' + filename, 'r' )
-	file_content = sass_file.read()
-	sass_file.close()
+	style_file = open( css_path + '/' + filename, 'r' )
 
-	filename = filename.replace( '.scss', '.css' )
+	splitted_filename = filename.split('.')
+	basename = splitted_filename[0]
+	file_extension = splitted_filename[-1]
+	file_content = style_file.read()
 
-	file_out = open( out_css_path + '/' + filename, 'w' )
-	file_out.write( sass.compile( string = file_content ) )
+	if file_extension == "less":
+		file_content = lesscpy.compile( StringIO(file_content) )
+		file_content = re.sub(r"(\"\~)(.*)(\")", remove_borders, file_content)
+	
+	style_file.close()
+
+	file_out = open( out_css_path + '/' + basename + '.css', 'w' )
+	file_out.write( file_content )
 	file_out.close()
