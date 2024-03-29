@@ -1,11 +1,13 @@
-# Features
+# Simple Static Website Generator
 
-### simple export
-Script de export que tome el head y foot y se lo appendee a todas las paginas
+I was just looking for a simple thing that would let me import html files from within html files.
+Couldn't find anything decent, so I'm making it myself.
 
-## Wishlist
+## Features
 
-### Auto paginas
-Crear un .yaml que tenga las distintas páginas a mostrar y con eso generar el header
+Nothing usable yet, I'm like tearing this down and building it back up.
 
-### Parser .md -> .html
+## Features to implement
+
+* Import html files from within html files
+* less support
