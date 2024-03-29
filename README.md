@@ -12,7 +12,8 @@ Clone the repository, and install its dependencies with:
 $ pip install -r requirements.txt
 ```
 
-That's it!
+There's also a `.exe` file if you're using windows in the [releases](https://github.com/tomyahu/simple-static-website-gen/releases/tag/release) of this repository.
+If you use that, keep in mind that running that file is the same as running `$ python make.py` when you go through the next section.
 
 # How to use this
 
