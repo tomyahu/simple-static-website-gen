@@ -1,8 +1,8 @@
 import os, shutil
 import sass
 
-pags_path = 'pags'
-css_path = 'css'
+pags_path = 'src/pags'
+css_path = 'src/css'
 out_path = 'out'
 
 ignore = set()
