@@ -88,3 +88,7 @@ sample sequence of characters
 
 I use this when using the `calc` css function, to preserve the calculation I'm making inside the function (`less` has trouble with the `-` character sometimes).
 So yeah, you can do that if you want.
+
+### markdown support
+
+The script also converts markdown files to html. This also works with imports!

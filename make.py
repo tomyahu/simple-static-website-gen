@@ -3,6 +3,7 @@ import re
 import lesscpy
 from six import StringIO
 import lib
+import markdown
 
 called_path = os.getcwd()
 
@@ -12,6 +13,7 @@ out_path = called_path +'/out'
 
 supported_extensions = set()
 supported_extensions.add("html")
+supported_extensions.add("md")
 
 parsed_contents = {}
 
@@ -51,6 +53,10 @@ def makePage( base_dir, page_path ):
 	file_content = file_template.read()
 	file_template.close()
 
+	file_extension = page_path.split('.')[-1]
+	if file_extension == "md":
+		file_content = markdown.markdown(file_content)
+
 	for import_path in re.findall( r"<!-- *import (.*?) *-->", file_content ):
 		import_full_path = lib.getAbsPath( base_dir + '/' + import_path )
 		file_content = re.sub(r"<!-- *import " + re.escape(import_path) + r" *-->", makePage( base_dir, import_path ), file_content )
@@ -72,7 +78,7 @@ def addPages( pags_path, out_path ):
 		elif( file_extension in supported_extensions ):
 			print( pags_path + "/" + filename )
 			file_content = makePage( pags_path, filename )
-			file_out = open( out_path + '/' + filename, 'w', encoding="utf8" )
+			file_out = open( out_path + '/' + basename + ".html", 'w', encoding="utf8" )
 			file_out.write( file_content )
 			file_out.close()
 
