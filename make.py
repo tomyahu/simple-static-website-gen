@@ -13,6 +13,7 @@ out_path = called_path +'/out'
 
 supported_extensions = set()
 supported_extensions.add("html")
+supported_extensions.add("php")
 supported_extensions.add("md")
 
 parsed_contents = {}
@@ -78,7 +79,10 @@ def addPages( pags_path, out_path ):
 		elif( file_extension in supported_extensions ):
 			print( pags_path + "/" + filename )
 			file_content = makePage( pags_path, filename )
-			file_out = open( out_path + '/' + basename + ".html", 'w', encoding="utf8" )
+			if file_extension == "md":
+				file_extension = "html"
+			
+			file_out = open( out_path + '/' + basename + "." + file_extension, 'w', encoding="utf8" )
 			file_out.write( file_content )
 			file_out.close()
 
