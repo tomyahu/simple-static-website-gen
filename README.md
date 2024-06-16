@@ -69,6 +69,32 @@ So when I want to make a new page, the code looks like this:
 Also, if your html files in the `src/pags` folder has an underscore `_` at the beginning, it will not be copied to the out directory.
 This is so you don't have a random `_head.html` file that is broken by itself in your final website.
 
+### Global Variables
+
+You can store global varibles to replace in your templates or within your imports.
+You can store a variable with
+
+```
+<!-- s_examplevarname hello whats up -->
+```
+
+Then you can call that variable with
+
+```
+<!-- l_examplevarname -->
+```
+
+This will replace the string `<!-- l_examplevarname -->` with `hello whats up`.
+You can use this alongside imports to create modular components for your website.
+You can also write these things like this
+
+```
+{{ l_examplevarname }}
+```
+
+So your code editor doesn't give you errors if you try to use variables for links.
+
+
 ###  css and lesscss support
 
 In the `src/css` folder is where you put your css files, and these will be copied to a css folder inside the `out` directory.

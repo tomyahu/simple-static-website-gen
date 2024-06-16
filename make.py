@@ -16,6 +16,8 @@ supported_extensions.add("html")
 supported_extensions.add("php")
 supported_extensions.add("md")
 
+registries = dict()
+
 parsed_contents = {}
 
 if not os.path.isdir(called_path + '/src'):
@@ -58,9 +60,24 @@ def makePage( base_dir, page_path ):
 	if file_extension == "md":
 		file_content = markdown.markdown(file_content)
 
-	for import_path in re.findall( r"<!-- *import (.*?) *-->", file_content ):
-		import_full_path = lib.getAbsPath( base_dir + '/' + import_path )
-		file_content = re.sub(r"<!-- *import " + re.escape(import_path) + r" *-->", makePage( base_dir, import_path ), file_content )
+	regex_prefix = r"(?:(?:{{)|(?:<!--)) *"
+	regex_suffix = r" *(?:(?:-->)|(?:}}))"
+	for func, val in re.findall( regex_prefix + r"(.*?) (.*?)" + regex_suffix, file_content ):
+		replace_with = ""
+		if func == "import":
+			import_full_path = lib.getAbsPath( base_dir + '/' + val )
+			replace_with = makePage( base_dir, val )
+		
+		if re.match( r"^s_(.*?)$", func ):
+			varname = re.findall(r"^s_(.*?)$", func)[0]
+			registries[varname] = val
+
+		if re.match( r"^l_(.*?)$", func ):
+			varname = re.findall(r"^l_(.*?)$", func)[0]
+			if varname in registries:
+				replace_with = registries[varname]
+
+		file_content = re.sub(regex_prefix + func + r" " + re.escape(val) + regex_suffix, replace_with, file_content, count=1 )
 	
 	parsed_contents[ base_dir + '/' + page_path ] = file_content
 
