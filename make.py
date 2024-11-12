@@ -102,14 +102,18 @@ def addPages( pags_path, out_path ):
 			file_out = open( out_path + '/' + basename + "." + file_extension, 'w', encoding="utf8" )
 			file_out.write( file_content )
 			file_out.close()
-
+		
 		elif os.path.isdir(pags_path + '/' + filename):
 			new_out_path = out_path + '/' + filename
 			if not os.path.isdir(new_out_path):
 				os.mkdir(new_out_path)
 			
 			addPages( pags_path + '/' + filename, new_out_path )
-			
+		
+		elif( file_extension != "" ):
+			print( pags_path + "/" + filename )
+			shutil.copyfile(pags_path + "/" + filename, out_path + '/' + filename )
+
 
 addPages( pags_path, out_path )
 
